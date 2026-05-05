@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ice-Breaker Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; padding: 24px; color: #172B4D; }
+  .label { font-size: 12px; font-weight: 500; color: #6B778C; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+  .cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .cat { padding: 7px 16px; border: 1.5px solid #0052CC; background: #fff; color: #0052CC; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .15s; }
+  .cat:hover { background: #DEEBFF; }
+  .cat.on { background: #0052CC; color: #fff; }
+  .gen-btn { width: 100%; padding: 13px; background: #0052CC; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: background .15s; }
+  .gen-btn:hover { background: #0065FF; }
+  .gen-btn:active { background: #003EA6; transform: scale(.99); }
+  .output { background: #F4F5F7; border-radius: 8px; padding: 28px 24px; text-align: center; min-height: 88px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .output p { font-size: 18px; font-weight: 500; color: #172B4D; line-height: 1.5; }
+  .output p.placeholder { font-size: 15px; font-weight: 400; color: #97A0AF; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .copy-btn { padding: 7px 18px; background: #fff; border: 1.5px solid #C1C7D0; border-radius: 5px; cursor: pointer; color: #42526E; font-size: 13px; font-weight: 500; transition: all .15s; }
+  .copy-btn:hover { background: #F4F5F7; border-color: #97A0AF; }
+  .copy-btn.copied { color: #006644; border-color: #57D9A3; background: #E3FCEF; }
+  .counter { font-size: 12px; color: #97A0AF; text-align: center; margin-top: 10px; min-height: 16px; }
+</style>
+</head>
+<body>
+<p class="label">Category</p>
+<div class="cats">
+  <button class="cat on" onclick="sc('all',this)">All prompts</button>
+  <button class="cat" onclick="sc('know',this)">Get to know you</button>
+  <button class="cat" onclick="sc('fun',this)">Fun and silly</button>
+  <button class="cat" onclick="sc('creative',this)">Creative</button>
+  <button class="cat" onclick="sc('work',this)">Work and life</button>
+</div>
+<button class="gen-btn" onclick="gen()">Generate ice-breaker</button>
+<div class="output">
+  <p class="placeholder" id="out">Click Generate to get a random prompt.</p>
+</div>
+<div class="actions">
+  <button class="copy-btn" id="copy-btn" onclick="cp()">Copy prompt</button>
+</div>
+<p class="counter" id="counter"></p>
+
+<script>
+var cat = 'all';
+var used = { all: [], know: [], fun: [], creative: [], work: [] };
+var current = '';
+var p = {
+  know: [
+    'What hobby did you pick up in the last year?',
+    'What is your go-to comfort food?',
+    'Where is the most interesting place you have traveled?',
+    'What is something most people do not know about you?',
+    'If you could live anywhere in the world, where would it be?',
+    'What skill are you secretly proud of?',
+    'What is the best advice someone ever gave you?',
+    'What is your morning routine like?',
+    'What is a tradition from your culture or family that you love?',
+    'What is the last book or show you really enjoyed?',
+    'What is a place you would love to visit someday?',
+    'What is one thing on your bucket list?'
+  ],
+  fun: [
+    'If you could have any superpower, what would it be?',
+    'What is the weirdest food combination you secretly enjoy?',
+    'If you were a kitchen appliance, which one would you be and why?',
+    'What is the most useless talent you have?',
+    'Would you rather explore space or the deep ocean?',
+    'What movie can you quote entirely from memory?',
+    'If you could only eat one food for the rest of your life, what would it be?',
+    'What is the strangest thing on your bucket list?',
+    'If you could swap lives with a fictional character for a day, who would it be?',
+    'What animal would you be and why?',
+    'What is your most controversial food opinion?'
+  ],
+  creative: [
+    'If you could have dinner with anyone alive or historical, who would you pick?',
+    'What fictional universe would you want to live in?',
+    'What would the title of your autobiography be?',
+    'What invention do you wish existed?',
+    'If you could master any skill instantly, what would it be?',
+    'What era of history would you visit for a week?',
+    'What would you say to your 10-year-old self?',
+    'What would your perfect day look like?',
+    'If you had to teach a class on any topic, what would it be?',
+    'What is one rule you would add to the world if you could?'
+  ],
+  work: [
+    'What have you learned at work recently that surprised you?',
+    'What is your WFH essential?',
+    'What work habit has made the biggest difference for you?',
+    'What is a project you are really proud of?',
+    'What do you wish you had known when you started your career?',
+    'What motivates you most in your work?',
+    'How do you recharge after a tough week?',
+    'What does work-life balance look like for you?',
+    'What is a skill from a past job you still use today?',
+    'What is the best thing about working from home?'
+  ]
+};
+
+function getPool(c) {
+  return c === 'all' ? [].concat(p.know, p.fun, p.creative, p.work) : p[c];
+}
+
+function sc(c, btn) {
+  cat = c;
+  document.querySelectorAll('.cat').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  updateCounter();
+}
+
+function gen() {
+  var pool = getPool(cat);
+  var available = pool.filter(function(q) { return used[cat].indexOf(q) === -1; });
+  if (available.length === 0) { used[cat] = []; available = pool.slice(); }
+  var pick = available[Math.floor(Math.random() * available.length)];
+  used[cat].push(pick);
+  current = pick;
+  var el = document.getElementById('out');
+  el.textContent = pick;
+  el.className = '';
+  var btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copy prompt';
+  btn.className = 'copy-btn';
+  updateCounter();
+}
+
+function updateCounter() {
+  var pool = getPool(cat);
+  var seen = used[cat].filter(function(q) { return pool.indexOf(q) !== -1; }).length;
+  document.getElementById('counter').textContent = seen > 0 ? (seen + ' of ' + pool.length + ' prompts seen') : '';
+}
+
+function cp() {
+  if (!current) return;
+  navigator.clipboard.writeText(current).then(function() {
+    var btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.className = 'copy-btn copied';
+    setTimeout(function() {
+      btn.textContent = 'Copy prompt';
+      btn.className = 'copy-btn';
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
