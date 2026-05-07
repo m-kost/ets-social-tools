@@ -6,74 +6,365 @@
 <title>Ice-Breaker Generator</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; padding: 24px; color: #172B4D; }
-  .label { font-size: 12px; font-weight: 500; color: #6B778C; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
-  .cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .cat { padding: 7px 16px; border: 1.5px solid #0052CC; background: #fff; color: #0052CC; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .15s; }
-  .cat:hover { background: #DEEBFF; }
-  .cat.on { background: #0052CC; color: #fff; }
-  .gen-btn { width: 100%; padding: 13px; background: #0052CC; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: background .15s; }
-  .gen-btn:hover { background: #0065FF; }
-  .gen-btn:active { background: #003EA6; transform: scale(.99); }
-  .output { background: #F4F5F7; border-radius: 8px; padding: 28px 24px; text-align: center; min-height: 88px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-  .output p { font-size: 18px; font-weight: 500; color: #172B4D; line-height: 1.5; }
-  .output p.placeholder { font-size: 15px; font-weight: 400; color: #97A0AF; }
-  .actions { display: flex; justify-content: flex-end; gap: 8px; }
-  .copy-btn { padding: 7px 18px; background: #fff; border: 1.5px solid #C1C7D0; border-radius: 5px; cursor: pointer; color: #42526E; font-size: 13px; font-weight: 500; transition: all .15s; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F7F8FA;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #E2E5EB;
+    padding: 32px;
+    width: 100%;
+    max-width: 640px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+
+  .header {
+    margin-bottom: 28px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0D1B2A;
+    letter-spacing: -.3px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: #6B778C;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8993A4;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 10px;
+  }
+
+  .cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .cat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1.5px solid #DFE1E6;
+    background: #F4F5F7;
+    color: #42526E;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all .15s;
+    user-select: none;
+  }
+
+  .cat:hover { border-color: #4C9AFF; color: #0052CC; background: #EEF4FF; }
+
+  .cat.on {
+    border-color: #0052CC;
+    background: #0052CC;
+    color: #fff;
+  }
+
+  .cat .emoji { font-size: 14px; line-height: 1; }
+
+  .cat .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: rgba(0,0,0,.08);
+    color: inherit;
+    opacity: .8;
+  }
+
+  .cat.on .badge { background: rgba(255,255,255,.25); }
+
+  .gen-wrap { margin-bottom: 20px; }
+
+  .gen-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #0052CC 0%, #0065FF 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .gen-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,82,204,.3); }
+  .gen-btn:active { filter: brightness(.96); transform: translateY(0); box-shadow: none; }
+
+  .dice-icon {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,.85);
+    border-radius: 4px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dice-icon::before { content: ''; width: 5px; height: 5px; background: #fff; border-radius: 50%; }
+
+  .output-wrap {
+    background: #F4F6FA;
+    border: 1.5px solid #E2E5EB;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .output-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    background: #ECEEF2;
+    border-bottom: 1px solid #DFE1E6;
+  }
+
+  .output-cat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B778C;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+  }
+
+  .output-num {
+    font-size: 11px;
+    color: #97A0AF;
+  }
+
+  .output-body {
+    padding: 32px 28px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .output-text {
+    font-size: 20px;
+    font-weight: 500;
+    color: #172B4D;
+    line-height: 1.55;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+
+  .output-text.placeholder {
+    font-size: 15px;
+    font-weight: 400;
+    color: #B3BAC5;
+    font-style: italic;
+  }
+
+  .output-text.fade-out { opacity: 0; transform: translateY(-6px); }
+  .output-text.fade-in { opacity: 1; transform: translateY(0); }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .progress-bar-track {
+    flex: 1;
+    height: 4px;
+    background: #E2E5EB;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #0052CC;
+    border-radius: 4px;
+    transition: width .4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: #97A0AF;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .copy-btn {
+    padding: 8px 20px;
+    background: #fff;
+    border: 1.5px solid #DFE1E6;
+    border-radius: 7px;
+    cursor: pointer;
+    color: #42526E;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all .15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .copy-btn:hover { background: #F4F5F7; border-color: #97A0AF; }
   .copy-btn.copied { color: #006644; border-color: #57D9A3; background: #E3FCEF; }
-  .counter { font-size: 12px; color: #97A0AF; text-align: center; margin-top: 10px; min-height: 16px; }
+  .copy-btn:disabled { opacity: .4; cursor: default; }
 </style>
 </head>
 <body>
-<p class="label">Choose Category</p>
-<div class="cats">
-  <button class="cat on" onclick="sc('all',this)">All prompts</button>
-  <button class="cat" onclick="sc('know',this)">Get to know you</button>
-  <button class="cat" onclick="sc('fun',this)">Fun and silly</button>
-  <button class="cat" onclick="sc('creative',this)">Creative</button>
-  <button class="cat" onclick="sc('work',this)">Work and life</button>
+<div class="card">
+  <div class="header">
+    <h1>Ice-Breaker Generator</h1>
+    <p>Pick a category and click Generate. A random prompt will be chosen for your breakout rooms.</p>
+  </div>
+
+  <p class="section-label">Category</p>
+  <div class="cats" id="cats">
+    <button class="cat on" data-cat="all" onclick="sc('all',this)">
+      <span class="emoji">🎲</span> All prompts <span class="badge" id="badge-all">100</span>
+    </button>
+    <button class="cat" data-cat="know" onclick="sc('know',this)">
+      <span class="emoji">🤝</span> Get to know you <span class="badge" id="badge-know">25</span>
+    </button>
+    <button class="cat" data-cat="fun" onclick="sc('fun',this)">
+      <span class="emoji">😄</span> Fun &amp; silly <span class="badge" id="badge-fun">25</span>
+    </button>
+    <button class="cat" data-cat="creative" onclick="sc('creative',this)">
+      <span class="emoji">💭</span> Creative <span class="badge" id="badge-creative">25</span>
+    </button>
+    <button class="cat" data-cat="work" onclick="sc('work',this)">
+      <span class="emoji">💼</span> Work &amp; life <span class="badge" id="badge-work">25</span>
+    </button>
+    <button class="cat" data-cat="wouldyou" onclick="sc('wouldyou',this)">
+      <span class="emoji">⚡</span> Would you rather <span class="badge" id="badge-wouldyou">20</span>
+    </button>
+  </div>
+
+  <div class="gen-wrap">
+    <button class="gen-btn" onclick="gen()">
+      <span class="dice-icon"></span>
+      Generate ice-breaker
+    </button>
+  </div>
+
+  <div class="output-wrap">
+    <div class="output-top">
+      <span class="output-cat-label" id="out-cat-label">—</span>
+      <span class="output-num" id="out-num"></span>
+    </div>
+    <div class="output-body">
+      <p class="output-text placeholder" id="out">Click Generate to get a random prompt.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="progress-wrap">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-label" id="progress-label"></span>
+    </div>
+    <button class="copy-btn" id="copy-btn" onclick="cp()" disabled>Copy prompt</button>
+  </div>
 </div>
-<button class="gen-btn" onclick="gen()">Generate</button>
-<div class="output">
-  <p class="placeholder" id="out">Click Generate to get a random prompt.</p>
-</div>
-<div class="actions">
-  <button class="copy-btn" id="copy-btn" onclick="cp()">Copy prompt</button>
-</div>
-<p class="counter" id="counter"></p>
 
 <script>
 var cat = 'all';
-var used = { all: [], know: [], fun: [], creative: [], work: [] };
+var used = { all: [], know: [], fun: [], creative: [], work: [], wouldyou: [] };
 var current = '';
+
 var p = {
   know: [
     'What hobby did you pick up in the last year?',
     'What is your go-to comfort food?',
-    'Where is the most interesting place you have traveled?',
+    'Where is the most interesting place you have ever traveled?',
     'What is something most people do not know about you?',
     'If you could live anywhere in the world, where would it be?',
     'What skill are you secretly proud of?',
-    'What is the best advice someone ever gave you?',
-    'What is your morning routine like?',
+    'What is the best advice someone has ever given you?',
+    'What does your ideal morning routine look like?',
     'What is a tradition from your culture or family that you love?',
-    'What is the last book or show you really enjoyed?',
+    'What is the last book, show, or podcast you really enjoyed?',
     'What is a place you would love to visit someday?',
-    'What is one thing on your bucket list?'
+    'What is one thing on your bucket list?',
+    'What is your favorite season and why?',
+    'What is a small thing that reliably makes your day better?',
+    'What is the most memorable meal you have ever had?',
+    'What is a childhood memory that still makes you smile?',
+    'What is your go-to way to spend a free weekend?',
+    'If you could learn any language instantly, which would it be?',
+    'What is a song that always puts you in a good mood?',
+    'What is something you are genuinely looking forward to in the next few months?',
+    'What is the best gift you have ever received?',
+    'What is your favorite thing about where you grew up?',
+    'What is the most unusual thing you own?',
+    'What is your favorite way to spend a rainy day?',
+    'What is something you do that most of your colleagues probably do not?'
   ],
   fun: [
     'If you could have any superpower, what would it be?',
     'What is the weirdest food combination you secretly enjoy?',
     'If you were a kitchen appliance, which one would you be and why?',
     'What is the most useless talent you have?',
-    'Would you rather explore space or the deep ocean?',
     'What movie can you quote entirely from memory?',
     'If you could only eat one food for the rest of your life, what would it be?',
-    'What is the strangest thing on your bucket list?',
     'If you could swap lives with a fictional character for a day, who would it be?',
     'What animal would you be and why?',
-    'What is your most controversial food opinion?'
+    'What is your most controversial food opinion?',
+    'If your life had a theme song, what would it be?',
+    'What is the most ridiculous thing you believed as a child?',
+    'If you could add one holiday to the calendar, what would it be?',
+    'What is the weirdest dream you can remember?',
+    'What is something you are irrationally afraid of?',
+    'If you could rename yourself, what name would you pick?',
+    'What bad habit are you oddly proud of?',
+    'If you were a type of weather, what would you be?',
+    'What is a skill you have that is completely useless in your job?',
+    'If you had to wear one outfit every day for a year, what would it be?',
+    'What is the strangest thing you have ever eaten?',
+    'What fictional world would you least want to live in?',
+    'If you could only watch one movie for the rest of your life, what would it be?',
+    'What would your wrestler entrance music be?',
+    'What is the funniest thing that has happened to you recently?',
+    'If animals could talk, which species would be the rudest?'
   ],
   creative: [
     'If you could have dinner with anyone alive or historical, who would you pick?',
@@ -83,55 +374,128 @@ var p = {
     'If you could master any skill instantly, what would it be?',
     'What era of history would you visit for a week?',
     'What would you say to your 10-year-old self?',
-    'What would your perfect day look like?',
+    'What would your perfect day look like from start to finish?',
     'If you had to teach a class on any topic, what would it be?',
-    'What is one rule you would add to the world if you could?'
+    'What is one rule you would add to the world if you could?',
+    'If you could redesign any everyday object, what would it be?',
+    'What would you do if you had one year with no responsibilities?',
+    'If you could write a book, what would it be about?',
+    'What historical event would you most want to witness firsthand?',
+    'If you could speak to any animal, which would you choose?',
+    'What would you create if you had unlimited resources?',
+    'If you had to start a completely new career tomorrow, what would it be?',
+    'If you could solve one global problem, which would you tackle first?',
+    'What is a piece of art, music, or film that changed how you see the world?',
+    'If you could merge two things to create something new, what would you combine?',
+    'What would a documentary about your life be called?',
+    'If you could visit any planet or moon in our solar system, which would you choose?',
+    'What would your dream house look like and where would it be?',
+    'If you could live in any decade of the 20th century, which would you pick?',
+    'What is something you would do if you knew you could not fail?'
   ],
   work: [
     'What have you learned at work recently that surprised you?',
-    'What is your WFH essential?',
+    'What is your WFH essential — the one thing you cannot work without?',
     'What work habit has made the biggest difference for you?',
     'What is a project you are really proud of?',
     'What do you wish you had known when you started your career?',
     'What motivates you most in your work?',
-    'How do you recharge after a tough week?',
-    'What does work-life balance look like for you?',
-    'What is a skill from a past job you still use today?',
-    'What is the best thing about working from home?'
+    'How do you recharge after a particularly tough week?',
+    'What does work-life balance look like for you in practice?',
+    'What is a skill from a past job that you still use today?',
+    'What is the most valuable lesson your career has taught you so far?',
+    'What does your ideal work environment look like?',
+    'Who has been the most influential person in your professional life?',
+    'What do you do to stay focused during long or difficult work days?',
+    'What is a professional goal you are actively working toward right now?',
+    'What is one thing you would change about how teams work together?',
+    'What is the best feedback you have ever received from someone?',
+    'What is a skill you want to develop over the next year?',
+    'What does success mean to you personally?',
+    'What is something about your work that brings you genuine joy?',
+    'How do you stay creative when you are feeling stuck?',
+    'What is the most interesting project you have worked on in your career?',
+    'What is one meeting format or work ritual you think every team should adopt?',
+    'What is something you do outside of work that makes you better at your job?',
+    'What is a challenge at work that you are proud of having overcome?',
+    'If you could give your team one gift — a tool, process, or habit — what would it be?'
+  ],
+  wouldyou: [
+    'Would you rather explore space or the deep ocean?',
+    'Would you rather always be 10 minutes early or always be 10 minutes late?',
+    'Would you rather be able to fly or be invisible?',
+    'Would you rather live in a big city or a small town?',
+    'Would you rather know every language or play every instrument?',
+    'Would you rather have a photographic memory or be able to forget anything on demand?',
+    'Would you rather work a job you love for less pay or a job you hate for great pay?',
+    'Would you rather never use social media again or never watch TV or movies again?',
+    'Would you rather always have to sing instead of speak or always have to dance instead of walk?',
+    'Would you rather spend a month in the mountains or a month at the beach?',
+    'Would you rather have a rewind button or a pause button for your life?',
+    'Would you rather know how you die or know when you die?',
+    'Would you rather be the funniest person in the room or the smartest?',
+    'Would you rather have unlimited travel with no money or unlimited money but never travel?',
+    'Would you rather be able to talk to animals or read minds?',
+    'Would you rather live 100 years in the past or 100 years in the future?',
+    'Would you rather give up coffee forever or give up your phone for a month?',
+    'Would you rather work from home forever or always work in an office?',
+    'Would you rather have one true best friend or many good friends?',
+    'Would you rather always know the truth or always be happy?'
   ]
 };
 
+var catNames = {
+  all: 'All prompts',
+  know: 'Get to know you',
+  fun: 'Fun & silly',
+  creative: 'Creative',
+  work: 'Work & life',
+  wouldyou: 'Would you rather'
+};
+
 function getPool(c) {
-  return c === 'all' ? [].concat(p.know, p.fun, p.creative, p.work) : p[c];
+  return c === 'all' ? [].concat(p.know, p.fun, p.creative, p.work, p.wouldyou) : p[c];
 }
 
 function sc(c, btn) {
   cat = c;
   document.querySelectorAll('.cat').forEach(function(b) { b.classList.remove('on'); });
   btn.classList.add('on');
-  updateCounter();
+  updateProgress();
 }
 
 function gen() {
   var pool = getPool(cat);
   var available = pool.filter(function(q) { return used[cat].indexOf(q) === -1; });
-  if (available.length === 0) { used[cat] = []; available = pool.slice(); }
+  if (available.length === 0) {
+    used[cat] = [];
+    available = pool.slice();
+  }
   var pick = available[Math.floor(Math.random() * available.length)];
   used[cat].push(pick);
   current = pick;
+
   var el = document.getElementById('out');
-  el.textContent = pick;
-  el.className = '';
-  var btn = document.getElementById('copy-btn');
-  btn.textContent = 'Copy prompt';
-  btn.className = 'copy-btn';
-  updateCounter();
+  el.classList.add('fade-out');
+
+  setTimeout(function() {
+    el.textContent = pick;
+    el.className = 'output-text fade-in';
+    document.getElementById('copy-btn').disabled = false;
+    document.getElementById('copy-btn').textContent = 'Copy prompt';
+    document.getElementById('copy-btn').className = 'copy-btn';
+    document.getElementById('out-cat-label').textContent = catNames[cat];
+    updateProgress();
+  }, 180);
 }
 
-function updateCounter() {
+function updateProgress() {
   var pool = getPool(cat);
   var seen = used[cat].filter(function(q) { return pool.indexOf(q) !== -1; }).length;
-  document.getElementById('counter').textContent = seen > 0 ? (seen + ' of ' + pool.length + ' prompts seen') : '';
+  var pct = pool.length > 0 ? (seen / pool.length * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = seen > 0 ? (seen + ' / ' + pool.length) : '';
+  document.getElementById('out-num').textContent = seen > 0 ? ('Prompt ' + seen + ' of ' + pool.length) : '';
 }
 
 function cp() {
@@ -146,6 +510,8 @@ function cp() {
     }, 2000);
   });
 }
+
+updateProgress();
 </script>
 </body>
 </html>
